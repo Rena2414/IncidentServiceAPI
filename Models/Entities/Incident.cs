@@ -2,11 +2,11 @@
 {
     public class Incident
     {
-        public required string IncidentName { get; set; }
+        public string IncidentName { get; set; }
 
-        public required string Description { get; set; }
+        public string Description { get; set; }
 
-        public required string AccountName { get; set; }
-        public required Account Account { get; set; }
+        public string AccountName { get; set; }
+        public Account Account { get; set; }
     }
 }
