@@ -21,7 +21,7 @@ namespace IncidentServiceAPI.Services
         public async Task<CreateContactResponseDto> CreateOrUpdateContactAsync(CreateContactRequestDto request)
         {
             var contact = await _unitOfWork.Contacts
-                .GetAsync(c => c.Email == request.Email);
+                .GetAsync(c => c.Email == request.contactEmail);
 
             var isCreated = false;
 
@@ -29,9 +29,9 @@ namespace IncidentServiceAPI.Services
             {
                 contact = new Contact
                 {
-                    Email = request.Email,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName
+                    Email = request.contactEmail,
+                    FirstName = request.contactFirstName,
+                    LastName = request.contactLastName
                 };
 
                 await _unitOfWork.Contacts.AddAsync(contact);
@@ -39,8 +39,8 @@ namespace IncidentServiceAPI.Services
             }
             else
             {
-                contact.FirstName = request.FirstName;
-                contact.LastName = request.LastName;
+                contact.FirstName = request.contactFirstName;
+                contact.LastName = request.contactLastName;
             }
 
             await _unitOfWork.SaveChangesAsync();

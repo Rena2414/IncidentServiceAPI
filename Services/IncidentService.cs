@@ -20,63 +20,68 @@ namespace IncidentServiceAPI.Services
 
         public async Task<CreateIncidentResponseDto> CreateIncidentAsync(CreateIncidentRequestDto request)
         {
-            var account = await _unitOfWork.Accounts
-                .GetAsync(a => a.Name == request.AccountName);
+            Incident incident = null!;
+            string accountName = null!;
 
-            if (account == null)
+            await _unitOfWork.ExecuteInTransactionAsync(async cancellationToken =>
             {
-                throw new KeyNotFoundException($"Account '{request.AccountName}' not found.");
-            }
+                var account = await _unitOfWork.Accounts
+                    .GetAsync(a => a.Name == request.AccountName, cancellationToken);
 
-            var contact = await _unitOfWork.Contacts
-                .GetAsync(c => c.Email == request.ContactEmail);
-
-            if (contact == null)
-            {
-                contact = new Contact
+                if (account == null)
                 {
-                    Email = request.ContactEmail,
-                    FirstName = request.ContactFirstName,
-                    LastName = request.ContactLastName
+                    throw new KeyNotFoundException($"Account '{request.AccountName}' not found.");
+                }
+
+                var contact = await _unitOfWork.Contacts
+                    .GetAsync(c => c.Email == request.ContactEmail, cancellationToken);
+
+                if (contact == null)
+                {
+                    contact = new Contact
+                    {
+                        Email = request.ContactEmail,
+                        FirstName = request.ContactFirstName,
+                        LastName = request.ContactLastName
+                    };
+
+                    await _unitOfWork.Contacts.AddAsync(contact, cancellationToken);
+                }
+                else
+                {
+                    contact.FirstName = request.ContactFirstName;
+                    contact.LastName = request.ContactLastName;
+                }
+
+                var isLinked = await _unitOfWork.AccountContacts.ExistsAsync(ac =>
+                    ac.AccountName == account.Name &&
+                    ac.ContactEmail == contact.Email, cancellationToken);
+
+                if (!isLinked)
+                {
+                    var accountContact = new AccountContact
+                    {
+                        AccountName = account.Name,
+                        ContactEmail = contact.Email
+                    };
+
+                    await _unitOfWork.AccountContacts.AddAsync(accountContact, cancellationToken);
+                }
+
+                incident = new Incident
+                {
+                    Description = request.IncidentDescription,
+                    AccountName = account.Name
                 };
 
-                await _unitOfWork.Contacts.AddAsync(contact);
-            }
-            else
-            {
-                contact.FirstName = request.ContactFirstName;
-                contact.LastName = request.ContactLastName;
-            }
-
-            var isLinked = await _unitOfWork.AccountContacts.ExistsAsync(ac =>
-                ac.AccountName == account.Name &&
-                ac.ContactEmail == contact.Email);
-
-            if (!isLinked)
-            {
-                var accountContact = new AccountContact
-                {
-                    AccountName = account.Name,
-                    ContactEmail = contact.Email
-                };
-
-                await _unitOfWork.AccountContacts.AddAsync(accountContact);
-            }
-
-            var incident = new Incident
-            {
-                Description = request.IncidentDescription,
-                AccountName = account.Name
-            };
-
-            await _unitOfWork.Incidents.AddAsync(incident);
-
-            await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.Incidents.AddAsync(incident, cancellationToken);
+                accountName = account.Name;
+            });
 
             return new CreateIncidentResponseDto
             {
                 IncidentName = incident.IncidentName,
-                AccountName = account.Name
+                AccountName = accountName
             };
         }
     }

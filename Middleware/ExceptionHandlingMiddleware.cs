@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace IncidentServiceAPI.Middleware
 {
@@ -38,6 +40,14 @@ namespace IncidentServiceAPI.Middleware
                     HttpStatusCode.BadRequest,
                     ex.Message);
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+            {
+                _logger.LogWarning(ex, "Unique constraint violation.");
+                await WriteProblemDetails(
+                    context,
+                    HttpStatusCode.Conflict,
+                    "A record with the same key already exists.");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception");
@@ -47,6 +57,16 @@ namespace IncidentServiceAPI.Middleware
                     HttpStatusCode.InternalServerError,
                     "An unexpected error occurred.");
             }
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+        {
+            if (ex.InnerException is SqlException sqlException)
+            {
+                return sqlException.Number == 2601 || sqlException.Number == 2627;
+            }
+
+            return false;
         }
 
         private static async Task WriteProblemDetails(

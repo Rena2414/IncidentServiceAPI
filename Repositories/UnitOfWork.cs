@@ -8,13 +8,18 @@ namespace IncidentServiceAPI.Repositories
     {
         private readonly AppDbContext _context;
 
-        public UnitOfWork(AppDbContext context)
+        public UnitOfWork(
+            AppDbContext context,
+            IAccountRepository accounts,
+            IContactRepository contacts,
+            IAccountContactRepository accountContacts,
+            IIncidentRepository incidents)
         {
             _context = context;
-            Accounts = new AccountRepository(context);
-            Contacts = new ContactRepository(context);
-            AccountContacts = new AccountContactRepository(context);
-            Incidents = new IncidentRepository(context);
+            Accounts = accounts;
+            Contacts = contacts;
+            AccountContacts = accountContacts;
+            Incidents = incidents;
         }
 
         public IAccountRepository Accounts { get; }
