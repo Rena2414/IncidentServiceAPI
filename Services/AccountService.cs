@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using IncidentServiceAPI.Services.Interfaces;
-using IncidentServiceAPI.Data;
-using IncidentServiceAPI.Models.DTOs;
+﻿using IncidentServiceAPI.Models.DTOs;
 using IncidentServiceAPI.Models.Entities;
+using IncidentServiceAPI.Repositories.Interfaces;
+using IncidentServiceAPI.Services.Interfaces;
 
 namespace IncidentServiceAPI.Services
 {
@@ -12,25 +11,25 @@ namespace IncidentServiceAPI.Services
     /// </summary>
     public class AccountService : IAccountService
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(AppDbContext context)
+        public AccountService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CreateAccountResponseDto> CreateAccountAsync(CreateAccountRequestDto request)
         {
-            var accountExists = await _context.Accounts
-                .AnyAsync(a => a.Name == request.AccountName);
+            var accountExists = await _unitOfWork.Accounts
+                .ExistsAsync(a => a.Name == request.AccountName);
 
             if (accountExists)
             {
                 throw new ArgumentException($"Account '{request.AccountName}' already exists.");
             }
 
-            var contact = await _context.Contacts
-                .FirstOrDefaultAsync(c => c.Email == request.ContactEmail);
+            var contact = await _unitOfWork.Contacts
+                .GetAsync(c => c.Email == request.ContactEmail);
 
             if (contact == null)
             {
@@ -41,7 +40,7 @@ namespace IncidentServiceAPI.Services
                     LastName = request.ContactLastName
                 };
 
-                _context.Contacts.Add(contact);
+                await _unitOfWork.Contacts.AddAsync(contact);
             }
             else
             {
@@ -54,7 +53,7 @@ namespace IncidentServiceAPI.Services
                 Name = request.AccountName
             };
 
-            _context.Accounts.Add(account);
+            await _unitOfWork.Accounts.AddAsync(account);
 
             var accountContact = new AccountContact
             {
@@ -62,9 +61,9 @@ namespace IncidentServiceAPI.Services
                 ContactEmail = contact.Email
             };
 
-            _context.AccountContacts.Add(accountContact);
+            await _unitOfWork.AccountContacts.AddAsync(accountContact);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return new CreateAccountResponseDto
             {

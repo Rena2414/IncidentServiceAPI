@@ -1,14 +1,22 @@
-using Microsoft.EntityFrameworkCore;
-using IncidentServiceAPI.Services.Interfaces;
-using IncidentServiceAPI.Middleware;
-using IncidentServiceAPI.Services;
 using IncidentServiceAPI.Data;
+using IncidentServiceAPI.Middleware;
+using IncidentServiceAPI.Repositories;
+using IncidentServiceAPI.Repositories.Interfaces;
+using IncidentServiceAPI.Services;
+using IncidentServiceAPI.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
+builder.Services.AddScoped<IAccountContactRepository, AccountContactRepository>();
+builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
 
 builder.Services.AddScoped<IIncidentService, IncidentService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

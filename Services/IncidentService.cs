@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using IncidentServiceAPI.Services.Interfaces;
-using IncidentServiceAPI.Data;
-using IncidentServiceAPI.Models.DTOs;
+﻿using IncidentServiceAPI.Models.DTOs;
 using IncidentServiceAPI.Models.Entities;
+using IncidentServiceAPI.Repositories.Interfaces;
+using IncidentServiceAPI.Services.Interfaces;
 
 namespace IncidentServiceAPI.Services
 {
@@ -12,25 +11,25 @@ namespace IncidentServiceAPI.Services
     /// </summary>
     public class IncidentService : IIncidentService
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public IncidentService(AppDbContext context)
+        public IncidentService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CreateIncidentResponseDto> CreateIncidentAsync(CreateIncidentRequestDto request)
         {
-            var account = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.Name == request.AccountName);
+            var account = await _unitOfWork.Accounts
+                .GetAsync(a => a.Name == request.AccountName);
 
             if (account == null)
             {
                 throw new KeyNotFoundException($"Account '{request.AccountName}' not found.");
             }
 
-            var contact = await _context.Contacts
-                .FirstOrDefaultAsync(c => c.Email == request.ContactEmail);
+            var contact = await _unitOfWork.Contacts
+                .GetAsync(c => c.Email == request.ContactEmail);
 
             if (contact == null)
             {
@@ -41,7 +40,7 @@ namespace IncidentServiceAPI.Services
                     LastName = request.ContactLastName
                 };
 
-                _context.Contacts.Add(contact);
+                await _unitOfWork.Contacts.AddAsync(contact);
             }
             else
             {
@@ -49,7 +48,7 @@ namespace IncidentServiceAPI.Services
                 contact.LastName = request.ContactLastName;
             }
 
-            var isLinked = await _context.AccountContacts.AnyAsync(ac =>
+            var isLinked = await _unitOfWork.AccountContacts.ExistsAsync(ac =>
                 ac.AccountName == account.Name &&
                 ac.ContactEmail == contact.Email);
 
@@ -61,7 +60,7 @@ namespace IncidentServiceAPI.Services
                     ContactEmail = contact.Email
                 };
 
-                _context.AccountContacts.Add(accountContact);
+                await _unitOfWork.AccountContacts.AddAsync(accountContact);
             }
 
             var incident = new Incident
@@ -71,9 +70,9 @@ namespace IncidentServiceAPI.Services
                 AccountName = account.Name
             };
 
-            _context.Incidents.Add(incident);
+            await _unitOfWork.Incidents.AddAsync(incident);
 
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return new CreateIncidentResponseDto
             {
