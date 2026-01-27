@@ -63,7 +63,8 @@ namespace IncidentServiceAPI.Data
                 entity.Property(i => i.IncidentName)
                       .IsRequired()
                       .HasMaxLength(255)
-                      .ValueGeneratedOnAdd();
+                      .ValueGeneratedOnAdd()
+                      .HasDefaultValueSql("lower(replace(newid(), '-', ''))");
 
                 entity.Property(i => i.Description)
                       .IsRequired();

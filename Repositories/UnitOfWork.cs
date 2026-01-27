@@ -1,5 +1,6 @@
 ﻿using IncidentServiceAPI.Data;
 using IncidentServiceAPI.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace IncidentServiceAPI.Repositories
 {
@@ -24,6 +25,16 @@ namespace IncidentServiceAPI.Repositories
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> action, CancellationToken cancellationToken = default)
+        {
+            await using IDbContextTransaction transaction =
+                await _context.Database.BeginTransactionAsync(cancellationToken);
+
+            await action(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         }
     }
 }

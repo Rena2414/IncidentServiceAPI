@@ -28,47 +28,53 @@ namespace IncidentServiceAPI.Services
                 throw new ArgumentException($"Account '{request.AccountName}' already exists.");
             }
 
-            var contact = await _unitOfWork.Contacts
-                .GetAsync(c => c.Email == request.ContactEmail);
+            CreateAccountResponseDto response = null!;
 
-            if (contact == null)
+            await _unitOfWork.ExecuteInTransactionAsync(async cancellationToken =>
             {
-                contact = new Contact
+                var contact = await _unitOfWork.Contacts
+                    .GetAsync(c => c.Email == request.ContactEmail, cancellationToken);
+
+                if (contact == null)
                 {
-                    Email = request.ContactEmail,
-                    FirstName = request.ContactFirstName,
-                    LastName = request.ContactLastName
+                    contact = new Contact
+                    {
+                        Email = request.ContactEmail,
+                        FirstName = request.ContactFirstName,
+                        LastName = request.ContactLastName
+                    };
+
+                    await _unitOfWork.Contacts.AddAsync(contact, cancellationToken);
+                }
+                else
+                {
+                    contact.FirstName = request.ContactFirstName;
+                    contact.LastName = request.ContactLastName;
+                    _unitOfWork.Contacts.Update(contact);
+                }
+
+                var account = new Account
+                {
+                    Name = request.AccountName
                 };
 
-                await _unitOfWork.Contacts.AddAsync(contact);
-            }
-            else
-            {
-                contact.FirstName = request.ContactFirstName;
-                contact.LastName = request.ContactLastName;
-            }
+                await _unitOfWork.Accounts.AddAsync(account, cancellationToken);
 
-            var account = new Account
-            {
-                Name = request.AccountName
-            };
+                var accountContact = new AccountContact
+                {
+                    AccountName = account.Name,
+                    ContactEmail = contact.Email
+                };
 
-            await _unitOfWork.Accounts.AddAsync(account);
+                await _unitOfWork.AccountContacts.AddAsync(accountContact, cancellationToken);
 
-            var accountContact = new AccountContact
-            {
-                AccountName = account.Name,
-                ContactEmail = contact.Email
-            };
+                response = new CreateAccountResponseDto
+                {
+                    AccountName = account.Name
+                };
+            });
 
-            await _unitOfWork.AccountContacts.AddAsync(accountContact);
-
-            await _unitOfWork.SaveChangesAsync();
-
-            return new CreateAccountResponseDto
-            {
-                AccountName = account.Name
-            };
+            return response;
         }
     }
 }

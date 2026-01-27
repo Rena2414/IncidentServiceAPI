@@ -65,7 +65,6 @@ namespace IncidentServiceAPI.Services
 
             var incident = new Incident
             {
-                IncidentName = Guid.NewGuid().ToString("N"),
                 Description = request.IncidentDescription,
                 AccountName = account.Name
             };

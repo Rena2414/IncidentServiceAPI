@@ -21,6 +21,13 @@ namespace IncidentServiceAPI.Repositories
             return await DbSet.FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
+        public async Task<IReadOnlyList<TEntity>> ListAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+        {
+            return predicate == null
+                ? await DbSet.ToListAsync(cancellationToken)
+                : await DbSet.Where(predicate).ToListAsync(cancellationToken);
+        }
+
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await DbSet.AnyAsync(predicate, cancellationToken);
@@ -29,6 +36,21 @@ namespace IncidentServiceAPI.Repositories
         public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             await DbSet.AddAsync(entity, cancellationToken);
+        }
+
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+        {
+            await DbSet.AddRangeAsync(entities, cancellationToken);
+        }
+
+        public void Update(TEntity entity)
+        {
+            DbSet.Update(entity);
+        }
+
+        public void Remove(TEntity entity)
+        {
+            DbSet.Remove(entity);
         }
     }
 }
