@@ -6,15 +6,15 @@ namespace IncidentServiceAPI.Models.DTOs
     {
         [Required]
         [StringLength(100)]
-        public string contactFirstName { get; set; }
+        public string ContactFirstName { get; set; }
 
         [Required]
         [StringLength(100)]
-        public string contactLastName { get; set; }
+        public string ContactLastName { get; set; }
 
         [Required]
         [EmailAddress]
         [StringLength(255)]
-        public string contactEmail { get; set; }
+        public string ContactEmail { get; set; }
     }
 }

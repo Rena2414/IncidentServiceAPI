@@ -20,36 +20,41 @@ namespace IncidentServiceAPI.Services
 
         public async Task<CreateContactResponseDto> CreateOrUpdateContactAsync(CreateContactRequestDto request)
         {
-            var contact = await _unitOfWork.Contacts
-                .GetAsync(c => c.Email == request.contactEmail);
-
-            var isCreated = false;
-
-            if (contact == null)
+            CreateContactResponseDto response = null!;
+            await _unitOfWork.ExecuteInTransactionAsync(async cancellationToken =>
             {
-                contact = new Contact
+                var contact = await _unitOfWork.Contacts
+                    .GetAsync(c => c.Email == request.ContactEmail, cancellationToken);
+
+                var isCreated = false;
+
+                if (contact == null)
                 {
-                    Email = request.contactEmail,
-                    FirstName = request.contactFirstName,
-                    LastName = request.contactLastName
+                    contact = new Contact
+                    {
+                        Email = request.ContactEmail,
+                        FirstName = request.ContactFirstName,
+                        LastName = request.ContactLastName
+                    };
+
+                    await _unitOfWork.Contacts.AddAsync(contact, cancellationToken);
+                    isCreated = true;
+                }
+                else
+                {
+                    contact.FirstName = request.ContactFirstName;
+                    contact.LastName = request.ContactLastName;
+                    _unitOfWork.Contacts.Update(contact);
+                }
+
+                response = new CreateContactResponseDto
+                {
+                    Email = contact.Email,
+                    IsCreated = isCreated
                 };
+            });
 
-                await _unitOfWork.Contacts.AddAsync(contact);
-                isCreated = true;
-            }
-            else
-            {
-                contact.FirstName = request.contactFirstName;
-                contact.LastName = request.contactLastName;
-            }
-
-            await _unitOfWork.SaveChangesAsync();
-
-            return new CreateContactResponseDto
-            {
-                Email = contact.Email,
-                IsCreated = isCreated
-            };
+            return response;
         }
     }
 }
