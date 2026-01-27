@@ -17,7 +17,6 @@ It supports the management of **Accounts, Contacts, and Incidents**, with busine
    - When creating an account or incident:
      - If a contact with the same email exists, the contact is **updated** and linked to the account if not already linked.
      - Otherwise, a **new contact** is created automatically.
-   - **Standalone contact creation is not allowed** to enforce business rules.
 
 3. **Incidents**
    - Each incident is linked to exactly **one account**.
