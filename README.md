@@ -32,7 +32,6 @@ The API utilizes Global Exception Middleware to return standardized HTTP status 
    - **200 OK / 201 Created:** Successful operations.
    - **400 Bad Request:** Validation failures (e.g., missing required fields)
    - **404 Not Found:** Operations referencing non-existent entities (e.g., creating an Incident for a missing Account)
-   - **409 Conflict:** Attempts to create duplicate unique resources (e.g., duplicate Account Name)
 
 ## Testing
 The project includes a comprehensive Unit Test suite (`IncidentServiceAPI.Tests`) using xUnit and Moq
