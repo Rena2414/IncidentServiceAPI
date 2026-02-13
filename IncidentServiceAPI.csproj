@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="IncidentServiceAPI.Tests\**" />
+    <Content Remove="IncidentServiceAPI.Tests\**" />
+    <EmbeddedResource Remove="IncidentServiceAPI.Tests\**" />
+    <None Remove="IncidentServiceAPI.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
