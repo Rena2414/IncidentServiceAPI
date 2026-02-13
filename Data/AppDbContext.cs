@@ -27,7 +27,6 @@ namespace IncidentServiceAPI.Data
             {
                 entity.HasKey(a => a.Name);
                 entity.Property(a => a.Name).IsRequired().HasMaxLength(255);
-                // Removed redundant index: HasKey already handles uniqueness.
             });
 
             modelBuilder.Entity<Contact>(entity =>
