@@ -15,7 +15,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IContactRepository, ContactRepository>();
-builder.Services.AddScoped<IAccountContactRepository, AccountContactRepository>();
 builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
 
 builder.Services.AddScoped<IIncidentService, IncidentService>();

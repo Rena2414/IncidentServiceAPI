@@ -20,8 +20,9 @@ namespace IncidentServiceAPI.Services
 
         public async Task<CreateIncidentResponseDto> CreateIncidentAsync(CreateIncidentRequestDto request)
         {
-            Incident incident = null!;
-            string accountName = null!;
+            if (request == null) throw new ArgumentNullException(nameof(request));
+
+            var response = new CreateIncidentResponseDto();
 
             await _unitOfWork.ExecuteInTransactionAsync(async cancellationToken =>
             {
@@ -42,47 +43,39 @@ namespace IncidentServiceAPI.Services
                     {
                         Email = request.ContactEmail,
                         FirstName = request.ContactFirstName,
-                        LastName = request.ContactLastName
+                        LastName = request.ContactLastName,
+                        Account = account
                     };
-
                     await _unitOfWork.Contacts.AddAsync(contact, cancellationToken);
                 }
                 else
                 {
                     contact.FirstName = request.ContactFirstName;
                     contact.LastName = request.ContactLastName;
-                }
 
-                var isLinked = await _unitOfWork.AccountContacts.ExistsAsync(ac =>
-                    ac.AccountName == account.Name &&
-                    ac.ContactEmail == contact.Email, cancellationToken);
-
-                if (!isLinked)
-                {
-                    var accountContact = new AccountContact
+                    if (contact.AccountName != account.Name)
                     {
-                        AccountName = account.Name,
-                        ContactEmail = contact.Email
-                    };
+                        contact.Account = account;
+                    }
 
-                    await _unitOfWork.AccountContacts.AddAsync(accountContact, cancellationToken);
+                    _unitOfWork.Contacts.Update(contact);
                 }
 
-                incident = new Incident
+                var incident = new Incident
                 {
                     Description = request.IncidentDescription,
-                    AccountName = account.Name
+                    Account = account
                 };
 
                 await _unitOfWork.Incidents.AddAsync(incident, cancellationToken);
-                accountName = account.Name;
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                response.IncidentName = incident.IncidentName;
+                response.AccountName = account.Name;
             });
 
-            return new CreateIncidentResponseDto
-            {
-                IncidentName = incident.IncidentName,
-                AccountName = accountName
-            };
+            return response;
         }
     }
 }

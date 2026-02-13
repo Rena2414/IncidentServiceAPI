@@ -20,6 +20,8 @@ namespace IncidentServiceAPI.Services
 
         public async Task<CreateContactResponseDto> CreateOrUpdateContactAsync(CreateContactRequestDto request)
         {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+
             CreateContactResponseDto response = null!;
             await _unitOfWork.ExecuteInTransactionAsync(async cancellationToken =>
             {

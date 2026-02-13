@@ -27,17 +27,9 @@ namespace IncidentServiceAPI.Controllers
         public async Task<IActionResult> CreateIncident(
             [FromBody] CreateIncidentRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
-
             var result = await _incidentService.CreateIncidentAsync(request);
 
-            return CreatedAtAction(
-                nameof(CreateIncident),
-                new { name = result.IncidentName },
-                result);
+            return StatusCode(201, result);
         }
     }
 }

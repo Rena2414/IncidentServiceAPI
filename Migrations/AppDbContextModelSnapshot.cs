@@ -29,31 +29,16 @@ namespace IncidentServiceAPI.Migrations
 
                     b.HasKey("Name");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("IncidentServiceAPI.Models.Entities.AccountContact", b =>
-                {
-                    b.Property<string>("AccountName")
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("ContactEmail")
-                        .HasColumnType("nvarchar(255)");
-
-                    b.HasKey("AccountName", "ContactEmail");
-
-                    b.HasIndex("ContactEmail");
-
-                    b.ToTable("AccountContacts");
                 });
 
             modelBuilder.Entity("IncidentServiceAPI.Models.Entities.Contact", b =>
                 {
                     b.Property<string>("Email")
                         .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("AccountName")
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FirstName")
@@ -68,8 +53,7 @@ namespace IncidentServiceAPI.Migrations
 
                     b.HasKey("Email");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
+                    b.HasIndex("AccountName");
 
                     b.ToTable("Contacts");
                 });
@@ -97,23 +81,14 @@ namespace IncidentServiceAPI.Migrations
                     b.ToTable("Incidents");
                 });
 
-            modelBuilder.Entity("IncidentServiceAPI.Models.Entities.AccountContact", b =>
+            modelBuilder.Entity("IncidentServiceAPI.Models.Entities.Contact", b =>
                 {
                     b.HasOne("IncidentServiceAPI.Models.Entities.Account", "Account")
-                        .WithMany("AccountContacts")
+                        .WithMany("Contacts")
                         .HasForeignKey("AccountName")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("IncidentServiceAPI.Models.Entities.Contact", "Contact")
-                        .WithMany("AccountContacts")
-                        .HasForeignKey("ContactEmail")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Account");
-
-                    b.Navigation("Contact");
                 });
 
             modelBuilder.Entity("IncidentServiceAPI.Models.Entities.Incident", b =>
@@ -129,14 +104,9 @@ namespace IncidentServiceAPI.Migrations
 
             modelBuilder.Entity("IncidentServiceAPI.Models.Entities.Account", b =>
                 {
-                    b.Navigation("AccountContacts");
+                    b.Navigation("Contacts");
 
                     b.Navigation("Incidents");
-                });
-
-            modelBuilder.Entity("IncidentServiceAPI.Models.Entities.Contact", b =>
-                {
-                    b.Navigation("AccountContacts");
                 });
 #pragma warning restore 612, 618
         }

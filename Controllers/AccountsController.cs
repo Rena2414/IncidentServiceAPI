@@ -27,17 +27,9 @@ namespace IncidentServiceAPI.Controllers
         public async Task<IActionResult> CreateAccount(
             [FromBody] CreateAccountRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
-
             var result = await _accountService.CreateAccountAsync(request);
 
-            return CreatedAtAction(
-                nameof(CreateAccount),
-                new { name = result.AccountName },
-                result);
+            return StatusCode(201, result);
         }
     }
 }

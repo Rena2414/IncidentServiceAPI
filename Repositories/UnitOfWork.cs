@@ -12,19 +12,16 @@ namespace IncidentServiceAPI.Repositories
             AppDbContext context,
             IAccountRepository accounts,
             IContactRepository contacts,
-            IAccountContactRepository accountContacts,
             IIncidentRepository incidents)
         {
             _context = context;
             Accounts = accounts;
             Contacts = contacts;
-            AccountContacts = accountContacts;
             Incidents = incidents;
         }
 
         public IAccountRepository Accounts { get; }
         public IContactRepository Contacts { get; }
-        public IAccountContactRepository AccountContacts { get; }
         public IIncidentRepository Incidents { get; }
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

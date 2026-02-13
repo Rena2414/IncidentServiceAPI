@@ -26,19 +26,11 @@ namespace IncidentServiceAPI.Controllers
         public async Task<IActionResult> CreateOrUpdateContact(
             [FromBody] CreateContactRequestDto request)
         {
-            if (!ModelState.IsValid)
-            {
-                return ValidationProblem(ModelState);
-            }
-
             var result = await _contactService.CreateOrUpdateContactAsync(request);
 
             if (result.IsCreated)
             {
-                return CreatedAtAction(
-                    nameof(CreateOrUpdateContact),
-                    new { email = result.Email },
-                    result);
+                return StatusCode(201, result);
             }
 
             return Ok(result);

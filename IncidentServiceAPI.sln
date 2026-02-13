@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncidentServiceAPI", "IncidentServiceAPI.csproj", "{2BBFA15C-2254-48A4-B180-8602AEA5F5C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncidentServiceAPI.Tests", "..\IncidentServiceAPI.Tests\IncidentServiceAPI.Tests.csproj", "{668F41D3-AD73-429A-ADDE-D4929CDC4BCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{2BBFA15C-2254-48A4-B180-8602AEA5F5C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BBFA15C-2254-48A4-B180-8602AEA5F5C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BBFA15C-2254-48A4-B180-8602AEA5F5C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{668F41D3-AD73-429A-ADDE-D4929CDC4BCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{668F41D3-AD73-429A-ADDE-D4929CDC4BCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{668F41D3-AD73-429A-ADDE-D4929CDC4BCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{668F41D3-AD73-429A-ADDE-D4929CDC4BCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
